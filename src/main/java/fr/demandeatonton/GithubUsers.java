@@ -28,12 +28,13 @@ public class GithubUsers extends JFrame {
 
    public GithubUsers() {
       super("Github Users");
-      setPreferredSize(new Dimension(600, 400));
+      setPreferredSize(new Dimension(400, 200));
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       setLayout(new BorderLayout());
       addUi();
       fetchGithubUsers();
       pack();
+      setLocationRelativeTo(null);
       setVisible(true);
    }
 
@@ -49,8 +50,9 @@ public class GithubUsers extends JFrame {
    private void updateCards(String json) {
       ObjectMapper mapper = new ObjectMapper();
       // delete existing cards
+      panel.invalidate();
       userCards.forEach(card -> panel.remove(card));
-
+      userCards.clear();
       // JSON from file to Object
       try {
          List<GithubUser> obj = mapper.readValue(json, new TypeReference<List<GithubUser>>() {
@@ -59,6 +61,7 @@ public class GithubUsers extends JFrame {
       } catch (IOException e) {
          e.printStackTrace();
       }
+      panel.validate();
 
    }
 
@@ -69,23 +72,9 @@ public class GithubUsers extends JFrame {
    }
 
    private void fetchGithubUsers() {
-      Observable<String> requestStream = Observable
-            .just("https://api.github.com/users?since=" + ((int) Math.random() * 500));
-
-      // requestStream.subscribe(new Consumer<String>() {
-      // @Override
-      // public void accept(String url) throws Exception {
-      // String json = readUrl(url);
-      //
-      // Observable<String> responseStream = Observable.just(json);
-      // responseStream.subscribe(new Consumer<String>() {
-      // @Override
-      // public void accept(String json) throws Exception {
-      // System.out.println(json);
-      // }
-      // });
-      // };
-      // });
+      String url = "https://api.github.com/users?since=" + ((int) (Math.random() * 500.0));
+      Observable<String> requestStream = Observable.just(url);
+      System.out.println("Fetching " + url);
 
       requestStream.flatMap(new Function<String, Observable<String>>() {
 
