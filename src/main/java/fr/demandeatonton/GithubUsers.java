@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -83,7 +84,13 @@ public class GithubUsers extends JFrame {
             return Observable.just(readUrl(url));
          }
 
-      }).subscribe(this::updateCards);
+      }).doOnError(error -> manageError(error))
+            .subscribe(this::updateCards);
+   }
+
+   private void manageError(Throwable t) {
+      JOptionPane.showMessageDialog(null, t.getMessage());
+      t.printStackTrace();
    }
 
    String readUrl(String url) throws IOException {
