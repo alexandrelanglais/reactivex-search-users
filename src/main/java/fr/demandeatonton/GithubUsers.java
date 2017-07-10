@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.demandeatonton.data.GithubUser;
 import fr.demandeatonton.ui.UserCard;
 import io.reactivex.Observable;
-import io.reactivex.functions.Function;
 
 public class GithubUsers extends JFrame {
    JPanel panel = new JPanel();
@@ -77,20 +76,15 @@ public class GithubUsers extends JFrame {
       Observable<String> requestStream = Observable.just(url);
       System.out.println("Fetching " + url);
 
-      requestStream.flatMap(new Function<String, Observable<String>>() {
+      requestStream.subscribe(theUrl -> {
+         String json = readUrl(theUrl);
+         Observable.just(json)
+               .subscribe(jsonResult -> updateCards(jsonResult));
+      }, throwable -> {
+         JOptionPane.showMessageDialog(null, throwable.getMessage());
+         System.out.println("Error: " + throwable.getMessage());
+      });
 
-         @Override
-         public Observable<String> apply(String url) throws Exception {
-            return Observable.just(readUrl(url));
-         }
-
-      }).doOnError(error -> manageError(error))
-            .subscribe(this::updateCards);
-   }
-
-   private void manageError(Throwable t) {
-      JOptionPane.showMessageDialog(null, t.getMessage());
-      t.printStackTrace();
    }
 
    String readUrl(String url) throws IOException {
@@ -106,7 +100,7 @@ public class GithubUsers extends JFrame {
       return res;
    }
 
-   public static void main(String[] args) throws InterruptedException {
+   public static void main(String[] args) {
       new GithubUsers();
    }
 
